@@ -18,13 +18,13 @@ public class Main {
             tomcat.setBaseDir(baseDir);
             // Thiết lập thư mục webapps
             String webappDirLocation = new File("src/main/webapp").getAbsolutePath();
-            
+
             // Tạo context với path rỗng "/"
             Context context = tomcat.addWebapp("", webappDirLocation);
-            
+
             // Thiết lập để tránh lỗi access restriction
             context.setReloadable(true);
-            
+
             // Connector configuration
             tomcat.getConnector(); // Quan trọng: Khởi tạo connector
 
@@ -35,14 +35,14 @@ public class Main {
             System.out.println("Web application directory: " + webappDirLocation);
             System.out.println("Base directory: " + baseDir);
             System.out.println("=========================");
-            
+
             // Giữ server chạy
             tomcat.getServer().await();
-            
+
         } catch (Exception e) {
             System.err.println("Server failed to start. Error: " + e.getMessage());
             e.printStackTrace();
-            
+
         }
     }
 }
