@@ -99,4 +99,49 @@ public class UserDAOImpl implements UserDAO {
         user.setCreatedAt(resultSet.getTimestamp("created_at").toLocalDateTime());
         return user;
     }
+    @Override
+    public List<User> findUsersByFollowerAndFollowing(int minFollowers, int minFollowing) {
+        List<User> userList = new ArrayList<>();
+
+        String sql = """
+        SELECT u.id, u.username,
+               COUNT(DISTINCT f1.follower_id) AS followers,
+               COUNT(DISTINCT f2.following_id) AS following
+        FROM users u
+        LEFT JOIN follows f1 ON f1.following_id = u.id
+        LEFT JOIN follows f2 ON f2.follower_id = u.id
+        GROUP BY u.id, u.username
+        HAVING followers >= ? OR following >= ?
+    """;
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, minFollowers);
+            statement.setInt(2, minFollowing);
+
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                Long id = resultSet.getLong("id");
+                String username = resultSet.getString("username");
+                int followerCount = resultSet.getInt("followers");
+                int followingCount = resultSet.getInt("following");
+
+                User user = new User(id);
+                user.setUsername(username);
+                user.setFollowerCount(followerCount);  // Gán số lượng followers
+                user.setFollowingCount(followingCount);  // Gán số lượng following
+
+                userList.add(user);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return userList;
+    }
+
+
+
 }

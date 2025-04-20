@@ -1,7 +1,6 @@
 package org.example.DAO;
 
 import org.example.model.User;
-
 import java.util.List;
 
 public interface UserDAO {
@@ -10,4 +9,8 @@ public interface UserDAO {
     User findById(Long id);
     List<User> findAll();
     User findByUsername(String username);
+
+    // ✅ Thêm phương thức tìm kiếm
+    List<User> findUsersByFollowerAndFollowing(int minFollowers, int minFollowing);
+
 }

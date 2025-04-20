@@ -12,7 +12,7 @@ public class FollowDAOImpl implements FollowDAO {
 
     @Override
     public void follow(User follower, User following) {
-        String sql = "INSERT INTO follows (follower_id, following_id) VALUES (?, ?)";
+            String sql = "INSERT INTO follows (follower_id, following_id) VALUES (?, ?)";
         try (Connection connection = databaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setLong(1, follower.getId());

@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 
 @WebFilter("/*") //Dùng để bắt tất cả các request (Tất cả các trang đều phải qua filter này)
-public class AuthFilter implements Filter {
+public class    AuthFilter implements Filter {
 
     private static final String[] PUBLIC_PAGES = {"/login", "/register", "/login.jsp", "/register.jsp"};
     

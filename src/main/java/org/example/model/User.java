@@ -4,38 +4,30 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 public class User {
 
     private Long id;
-
     private String username;
     private String password;
     private String role;
-
-
     private LocalDateTime createdAt;
-
-
     private List<Posts> posts = new ArrayList<>();
-
-
     private List<Follow> following = new ArrayList<>();
-
-
     private List<Follow> followers = new ArrayList<>();
-
-
     private boolean followedByCurrentUser;
 
-    public User(long id) {
-        this.id = id;
-    }
+    // Các thuộc tính mới
+    private int followerCount;  // Số lượng followers
+    private int followingCount;  // Số lượng following
+
     public User() {
     }
 
-    // Getters and Setters
+    public User(Long id) {
+        this.id = id;
+    }
+
+    // Getters và Setters cho các thuộc tính
     public Long getId() {
         return id;
     }
@@ -100,11 +92,28 @@ public class User {
         this.followers = followers;
     }
 
-    public boolean getFollowedByCurrentUser() {
+    public boolean isFollowedByCurrentUser() {
         return followedByCurrentUser;
     }
 
     public void setFollowedByCurrentUser(boolean followedByCurrentUser) {
         this.followedByCurrentUser = followedByCurrentUser;
+    }
+
+    // Getter và setter cho followerCount và followingCount
+    public int getFollowerCount() {
+        return followerCount;
+    }
+
+    public void setFollowerCount(int followerCount) {
+        this.followerCount = followerCount;
+    }
+
+    public int getFollowingCount() {
+        return followingCount;
+    }
+
+    public void setFollowingCount(int followingCount) {
+        this.followingCount = followingCount;
     }
 }
