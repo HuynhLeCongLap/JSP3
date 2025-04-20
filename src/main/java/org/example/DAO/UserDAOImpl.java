@@ -29,18 +29,23 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public void save(User user) {
-        String sql = "INSERT INTO users (username, password, role, created_at) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, role, created_at, email, date_of_birth) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection connection = databaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
+
             statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
             statement.setString(3, user.getRole());
             statement.setTimestamp(4, Timestamp.valueOf(user.getCreatedAt()));
+            statement.setString(5, user.getEmail());
+            statement.setDate(6, Date.valueOf(user.getDateOfBirth())); // Chuyển LocalDate -> java.sql.Date
+
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 
     @Override
     public User findById(Long id) {
@@ -141,6 +146,42 @@ public class UserDAOImpl implements UserDAO {
 
         return userList;
     }
+    @Override
+    public User findByEmail(String email) {
+        User user = null;
+        String sql = "SELECT * FROM users WHERE email = ?";
+
+        try (Connection conn = databaseConnection.getConnection();  // ← sửa dòng này
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                user = new User();
+                user.setId(rs.getLong("id"));
+                user.setUsername(rs.getString("username"));
+                user.setPassword(rs.getString("password"));
+                user.setRole(rs.getString("role"));
+                user.setEmail(rs.getString("email"));
+
+                Date dob = rs.getDate("date_of_birth");
+                if (dob != null) {
+                    user.setDateOfBirth(dob.toLocalDate());
+                }
+
+                Timestamp created = rs.getTimestamp("created_at");
+                if (created != null) {
+                    user.setCreatedAt(created.toLocalDateTime());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return user;
+    }
+
 
 
 

@@ -1,6 +1,8 @@
 package org.example.model;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,8 @@ public class User {
     private String username;
     private String password;
     private String role;
+    private String email; // Thêm trường email
+    private LocalDate dateOfBirth; // Thêm trường ngày sinh
     private LocalDateTime createdAt;
     private List<Posts> posts = new ArrayList<>();
     private List<Follow> following = new ArrayList<>();
@@ -27,7 +31,24 @@ public class User {
         this.id = id;
     }
 
-    // Getters và Setters cho các thuộc tính
+    // Getter và Setter cho email và dateOfBirth
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    // Các Getter và Setter khác
     public Long getId() {
         return id;
     }
@@ -115,5 +136,12 @@ public class User {
 
     public void setFollowingCount(int followingCount) {
         this.followingCount = followingCount;
+    }
+
+    // Kiểm tra ngày sinh có phải trên 15 tuổi không
+    public boolean isOver15YearsOld() {
+        LocalDate today = LocalDate.now();
+        Period period = Period.between(this.dateOfBirth, today);
+        return period.getYears() >= 15;
     }
 }

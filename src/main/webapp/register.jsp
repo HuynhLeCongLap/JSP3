@@ -79,6 +79,16 @@
         <!-- "name='password'": Đặt tên "password" cho dữ liệu này để máy chủ nhận biết -->
         <!-- "required": Bắt buộc phải nhập, không để trống -->
     </div>
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+
+    <div class="form-group">
+        <label for="dateOfBirth">Ngày sinh:</label>
+        <input type="date" id="dateOfBirth" name="dateOfBirth" required>
+    </div>
+
 
     <button type="submit" class="btn">Đăng ký</button>
     <!-- Tác dụng: Tạo nút "Đăng ký" để gửi dữ liệu bạn vừa nhập -->

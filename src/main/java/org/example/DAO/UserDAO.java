@@ -10,7 +10,10 @@ public interface UserDAO {
     List<User> findAll();
     User findByUsername(String username);
 
+    User findByEmail(String email); // ✅ Thêm để kiểm tra email trùng
+
     // ✅ Thêm phương thức tìm kiếm
     List<User> findUsersByFollowerAndFollowing(int minFollowers, int minFollowing);
+
 
 }

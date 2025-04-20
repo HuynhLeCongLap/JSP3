@@ -6,84 +6,66 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Set;
 
-/**
- * Ở đây có kiểm soát chuyển hướng, nếu user đã đăng nhập thì không cho phép vào trang login hoặc register
- * Nếu user chưa đăng nhập thì không cho phép vào trang admin hoặc home
- */
+@WebFilter("/*")
+public class AuthFilter implements Filter {
 
-@WebFilter("/*") //Dùng để bắt tất cả các request (Tất cả các trang đều phải qua filter này)
-public class    AuthFilter implements Filter {
+    private static final Set<String> PUBLIC_PAGES = Set.of(
+            "/login", "/register", "/login.jsp", "/register.jsp"
+    );
 
-    private static final String[] PUBLIC_PAGES = {"/login", "/register", "/login.jsp", "/register.jsp"};
-    
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        
-        //Lấy thông tin từ request
+
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-        HttpSession session = httpRequest.getSession(false); //Lấy session hiện tại
-        String path = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length()); //Lấy path của request
-        
-        // Kiểm tra nếu user đã đăng nhập
-        boolean isLoggedIn = (session != null && session.getAttribute("user") != null); //Kiểm tra xem user có đăng nhập không
-        boolean isPublicPage = containsPath(path, PUBLIC_PAGES); //Kiểm tra xem path có phải là trang login, register hoặc resource files không
-        boolean isPublicResource = path.endsWith(".css") || path.endsWith(".js"); //Kiểm tra xem path có phải là file css hoặc js không
-        boolean isAdminPage = path.startsWith("/admin/"); //Kiểm tra xem path có phải là trang admin không
-        
+        HttpSession session = httpRequest.getSession(false);
+
+        String contextPath = httpRequest.getContextPath();
+        String path = httpRequest.getRequestURI().substring(contextPath.length());
+
+        boolean isLoggedIn = (session != null && session.getAttribute("user") != null);
+        boolean isPublicPage = PUBLIC_PAGES.contains(path);
+        boolean isStaticResource = path.matches(".*(\\.css|\\.js|\\.png|\\.jpg|\\.jpeg|\\.gif|\\.woff|\\.ttf|\\.svg)$");
+        boolean isAdminPage = path.startsWith("/admin/");
+
         if (isLoggedIn) {
-            // Lấy role của user
             String role = (String) session.getAttribute("role");
-            
-            // Nếu đã đăng nhập và cố truy cập trang login/register
+
             if (isPublicPage) {
-                // Chuyển hướng về trang chủ tương ứng với role
+                // Redirect người dùng đã đăng nhập khỏi trang login/register
                 if ("ADMIN".equals(role)) {
-                    httpResponse.sendRedirect(httpRequest.getContextPath() + "/admin/dashboard");
+                    httpResponse.sendRedirect(contextPath + "/admin/dashboard");
                 } else {
-                    httpResponse.sendRedirect(httpRequest.getContextPath() + "/home");
+                    httpResponse.sendRedirect(contextPath + "/home");
                 }
                 return;
             }
-            
-            // Kiểm tra quyền truy cập trang admin
+
+            // Ngăn người dùng thường truy cập trang admin
             if (isAdminPage && !"ADMIN".equals(role)) {
                 httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
-            
-            // Cho phép truy cập tất cả các trang khác
+
+            // Cho phép các request hợp lệ tiếp tục
             chain.doFilter(request, response);
             return;
         }
-        
-        // Xử lý khi chưa đăng nhập
-        if (isPublicPage || isPublicResource) {
-            // Cho phép truy cập trang login, register và resource files
+
+        // Nếu chưa đăng nhập
+        if (isPublicPage || isStaticResource) {
             chain.doFilter(request, response);
         } else {
-            // Chuyển hướng về trang login cho các trang khác
-            httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
+            httpResponse.sendRedirect(contextPath + "/login");
         }
     }
-    
-    // Thêm phương thức hỗ trợ kiểm tra path
-    private boolean containsPath(String path, String[] allowedPaths) {
-        for (String allowedPath : allowedPaths) {
-            if (path.equals(allowedPath)) {
-                return true;
-            }
-        }
-        return false;
-    }
-    
+
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-    }
-    
+    public void init(FilterConfig filterConfig) {}
+
     @Override
-    public void destroy() {
-    }
-} 
+    public void destroy() {}
+}
